@@ -26,6 +26,8 @@ cc = meson.get_compiler('c')
 dep_math = cxx.find_library('m')
 dep_rt = cxx.find_library('rt')
 dep_thread = dependency('threads')
+# Dependency for libcurl
+libcurl = dependency('libcurl', required: true)
 
 # Optional dependencies
 systemd_system_unit_dir = get_option('systemdsystemunitdir')

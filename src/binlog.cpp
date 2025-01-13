@@ -51,6 +51,7 @@ bool BinLog::start()
         return false;
     }
 
+   
     _last_acked_seqno = 0;
 
     return true;
@@ -84,6 +85,7 @@ void BinLog::_send_stop()
 
 int BinLog::write_msg(const struct buffer *buffer)
 {
+
     const bool mavlink2 = buffer->data[0] == MAVLINK_STX;
     uint8_t trimmed_zeros;
     mavlink_remote_log_data_block_t *binlog_data;

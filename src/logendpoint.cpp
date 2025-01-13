@@ -39,6 +39,9 @@
 
 #include <common/log.h>
 #include <common/util.h>
+#include <curl/curl.h>
+
+#include "http_client.h"
 
 #include "mainloop.h"
 
@@ -297,10 +300,13 @@ DIR *LogEndpoint::_open_or_create_dir(const char *name)
 
 int LogEndpoint::_get_file(const char *extension)
 {
+    std::string flightId = getFlightID();
+
     time_t t = time(nullptr);
     struct tm *timeinfo = localtime(&t);
-    uint32_t i;
-    int j, r;
+    // uint32_t i;
+    // int j, r;
+    int r;
     DIR *dir;
     int dir_fd;
 
@@ -312,34 +318,68 @@ int LogEndpoint::_get_file(const char *extension)
     // Close dir when leaving function.
     std::shared_ptr<void> defer(dir, [](DIR *p) { closedir(p); });
 
-    i = _get_prefix(dir);
+    // i = _get_prefix(dir);
     dir_fd = dirfd(dir);
 
-    for (j = 0; j <= MAX_RETRIES; j++) {
-        r = snprintf(_filename,
+    // for (j = 0; j <= MAX_RETRIES; j++) {
+    //     r = snprintf(_filename,
+    //                  sizeof(_filename),
+    //                  "%s_%i-%02i-%02i_%02i-%02i-%02i.%s",flightId.c_str(),
+    //                  timeinfo->tm_mday,
+    //                  timeinfo->tm_mon + 1,
+    //                  timeinfo->tm_year + 1900,
+    //                  timeinfo->tm_hour,
+    //                  timeinfo->tm_min,
+    //                  timeinfo->tm_sec,
+    //                  extension);
+
+    //     if (r < 1 || (size_t)r >= sizeof(_filename)) {
+    //         log_error("Error formatting Log file name: (%m)");
+    //         return -1;
+    //     }
+
+//         r = openat(dir_fd, _filename, O_WRONLY | O_CLOEXEC | O_CREAT | O_NONBLOCK | O_EXCL, 0644);
+//         if (r < 0) {
+//             if (errno != EEXIST) {
+//                 log_error("Unable to open Log file(%s): (%m)", _filename);
+//                 return -1;
+//             }
+//             continue;
+//         }
+
+//         // Ensure the directory entry of the file is written to disk
+//         if (fsync(dir_fd) == -1) {
+//             log_error("fsync failed: %m");
+//         }
+
+//         return r;
+//     }
+
+////////////////////////////////////////////////////////////////////////////
+
+    r = snprintf(_filename,
                      sizeof(_filename),
-                     "%05u-%i-%02i-%02i_%02i-%02i-%02i.%s",
-                     i + j,
-                     timeinfo->tm_year + 1900,
-                     timeinfo->tm_mon + 1,
+                     "%s_%i-%02i-%02i_%02i-%02i-%02i.%s",flightId.c_str(),
                      timeinfo->tm_mday,
+                     timeinfo->tm_mon + 1,
+                     timeinfo->tm_year + 1900,
                      timeinfo->tm_hour,
                      timeinfo->tm_min,
                      timeinfo->tm_sec,
                      extension);
 
-        if (r < 1 || (size_t)r >= sizeof(_filename)) {
-            log_error("Error formatting Log file name: (%m)");
-            return -1;
-        }
+    if (r < 1 || (size_t)r >= sizeof(_filename)) {
+        log_error("Error formatting Log file name: (%m)");
+        return -1;
+    }
 
-        r = openat(dir_fd, _filename, O_WRONLY | O_CLOEXEC | O_CREAT | O_NONBLOCK | O_EXCL, 0644);
-        if (r < 0) {
-            if (errno != EEXIST) {
-                log_error("Unable to open Log file(%s): (%m)", _filename);
+
+    r = openat(dir_fd, _filename, O_WRONLY | O_CLOEXEC | O_CREAT | O_NONBLOCK | O_EXCL, 0644);
+    if (r < 0) {
+        if (errno != EEXIST) {
+            log_error("Unable to open Log file(%s): (%m)", _filename);
                 return -1;
             }
-            continue;
         }
 
         // Ensure the directory entry of the file is written to disk
@@ -348,8 +388,8 @@ int LogEndpoint::_get_file(const char *extension)
         }
 
         return r;
-    }
 
+////////////////////////////////////////////////////////////////////////////
     log_error("Unable to create a Log file without override another file.");
     return -EEXIST;
 }
@@ -436,8 +476,8 @@ bool LogEndpoint::_alive_timeout()
 {
     if (_timeout_write_total == _stat.write.total) {
         log_warning("No Log messages received in %u seconds restarting Log...", ALIVE_TIMEOUT);
-        stop();
-        start();
+        // stop();
+        // start();
     }
 
     _timeout_write_total = _stat.write.total;

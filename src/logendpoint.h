@@ -105,5 +105,5 @@ private:
      */
     void _delete_old_logs();
 
-    char _filename[64];
+    char _filename[94];
 };
