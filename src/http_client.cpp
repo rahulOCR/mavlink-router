@@ -69,6 +69,8 @@ std::string getFlightID()
         if (res != CURLE_OK)
         {
             std::cerr << "curl_easy_perform() failed: " << curl_easy_strerror(res) << std::endl;
+            log_error("unable to fetch http response from server, exiting ...");
+            exit(-1);
             hash = "";
         }
         

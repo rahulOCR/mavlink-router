@@ -1,6 +1,6 @@
 subdir('common')
 
-exe_mavlink_router = executable('mavlink-routerd',
+exe_mavlink_router = executable('uav-utility',
         [
          'autolog.cpp',
          'binlog.cpp',

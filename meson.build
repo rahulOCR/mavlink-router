@@ -1,5 +1,5 @@
 project(
-        'mavlink-router',
+        'uav-utility',
         'cpp', 'c',
         version: '3',
         license: 'Apache 2.0',

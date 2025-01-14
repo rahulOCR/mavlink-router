@@ -302,6 +302,13 @@ int LogEndpoint::_get_file(const char *extension)
 {
     std::string flightId = getFlightID();
 
+    if (flightId.compare("Flight ID not found!")==0)
+    {
+        log_error("Error getting Flight ID, exiting...");
+        exit(-1);
+        return -1;
+    }
+
     time_t t = time(nullptr);
     struct tm *timeinfo = localtime(&t);
     // uint32_t i;
